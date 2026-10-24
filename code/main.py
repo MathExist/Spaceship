@@ -40,5 +40,3 @@ while running:
     # display graphics, surface in pygame is usually image
 
 pygame.quit() # quit the game
-# \ - windows
-# / - mac/linux
