@@ -14,8 +14,8 @@ clock = pygame.time.Clock() # initialize clock
 path_player = join("..", "images", "player.png")
 player_surf = pygame.image.load(path_player).convert_alpha()
 player_rect = player_surf.get_frect(center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/1.2)) # calculate position
-player_direction = pygame.math.Vector2(0, -10) # 2d direction of player
-player_speed = 0.001 # speed of movement
+player_direction = pygame.math.Vector2(0, 0) # 2d direction of player
+player_speed = 100 # speed of movement
 
 # import an image surface: background
 path_star = join("..", "images", "star.png")
@@ -35,12 +35,31 @@ laser_rect = laser_surf.get_frect(bottomleft = (20, WINDOW_HEIGHT - 20))
 pygame.display.update() # draw on display surface
 
 while running:
-    dt = clock.tick() / 100
+    dt = clock.tick() / 1000
 
     # event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+        #     print(1)
+        # if event.type == pygame.MOUSEMOTION:
+        #     player_rect.center = event.pos
+    
+    # input
+    keys = pygame.key.get_pressed()
+    # if keys[pygame.K_RIGHT]:
+    #     player_direction.x = 1
+    # elif keys[pygame.K_DOWN]:
+    #     player_direction.y = 1
+    # elif keys[pygame.K_UP]:
+    #     player_direction.y = -1
+    # elif keys[pygame.K_LEFT]:
+    #     player_direction.x = -1
+    # else:
+    #     player_direction.x = 0
+    #     player_direction.y = 0
+    player_rect.center += player_direction * player_speed * dt
 
     # draw the game
     display_surface.fill('gray14')
@@ -52,10 +71,6 @@ while running:
     # meteor and laser movement
     display_surface.blit(meteor_surf, meteor_rect)
     display_surface.blit(laser_surf, laser_rect)
-
-    # player movement
-    player_rect.center += player_direction * player_speed * dt # adding vectors, use this instead
-    # player_speed += 0.01
     display_surface.blit(player_surf, player_rect)
 
     pygame.display.update()
