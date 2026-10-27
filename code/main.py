@@ -14,7 +14,8 @@ clock = pygame.time.Clock() # initialize clock
 path_player = join("..", "images", "player.png")
 player_surf = pygame.image.load(path_player).convert_alpha()
 player_rect = player_surf.get_frect(center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/1.2)) # calculate position
-player_direction = 1 # to the right
+player_direction = pygame.math.Vector2(0, -10) # 2d direction of player
+player_speed = 0.001 # speed of movement
 
 # import an image surface: background
 path_star = join("..", "images", "star.png")
@@ -34,7 +35,8 @@ laser_rect = laser_surf.get_frect(bottomleft = (20, WINDOW_HEIGHT - 20))
 pygame.display.update() # draw on display surface
 
 while running:
-    clock.tick(120)
+    dt = clock.tick() / 100
+
     # event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -52,9 +54,8 @@ while running:
     display_surface.blit(laser_surf, laser_rect)
 
     # player movement
-    player_rect.right += player_direction * 2
-    if player_rect.right >= WINDOW_WIDTH or player_rect.left < 0:
-        player_direction *= -1 # change dir
+    player_rect.center += player_direction * player_speed * dt # adding vectors, use this instead
+    # player_speed += 0.01
     display_surface.blit(player_surf, player_rect)
 
     pygame.display.update()
