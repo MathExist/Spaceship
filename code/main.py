@@ -67,7 +67,7 @@ class Meteor(pygame.sprite.Sprite):
 def collisions():
     global running
 
-    collision_sprites =  pygame.sprite.spritecollide(player, meteor_sprites, True)
+    collision_sprites =  pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
         print(collision_sprites[0])
 
