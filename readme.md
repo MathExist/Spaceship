@@ -18,3 +18,5 @@ After adding the elements, I added collisons, which is a key part of the game. T
 After finishing the main functions of the game, I added a box tracking the score and played around with the color. Additionally, I added sound and rotating asteroid features. Overall, this part was just making the game look better, but didn't actually change any of the functionality.
 
 This game is one in the series of games I will be building with pygame. As the games go on, they will get more and more complex.
+
+Update: the game is fully finished. It is still very, very basic compared to the other games I have saw online. In the next repo "vampire shooter" I will start developing that one.
