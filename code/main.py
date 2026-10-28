@@ -5,7 +5,7 @@ from os.path import join
 class Player(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
-        self.image = pygame.image.load(join("..", "images", "player.png")).convert_alpha()
+        self.image = pygame.image.load(join("..", "images", "player.png"))
         self.rect = self.image.get_frect(center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/1.2))
         self.direction = pygame.math.Vector2()
         self.speed = 300
@@ -33,6 +33,7 @@ class Player(pygame.sprite.Sprite):
             Laser(laser_surf, self.rect.midtop, (all_sprites, laser_sprites))
             self.can_shoot = False
             self.laser_shoot_time = pygame.time.get_ticks()
+            laser_sound.play()
         
         self.laser_time()
 class Star(pygame.sprite.Sprite):
@@ -53,28 +54,51 @@ class Laser(pygame.sprite.Sprite):
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, surf, pos, groups):
         super().__init__(groups)
+        self.original_surf = surf
         self.image = surf
         self.rect = self.image.get_frect(center = pos)
         self.start_time = pygame.time.get_ticks()
         self.lifetime = 3000
         self.speed = random.randint(400, 500)
         self.direction = pygame.Vector2(random.uniform(-0.5, 0.5), 1)
+        self.rotation_speed = random.randint(20, 50)
+        self.rotation = 0
 
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
         if pygame.time.get_ticks() - self.start_time >= self.lifetime:
             self.kill()
+        self.rotation += self.rotation_speed * dt
+        self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
+        self.rect = self.image.get_frect(center = self.rect.center)      
+class AnimatedExplosion(pygame.sprite.Sprite):
+    def __init__(self, frames, pos, groups):
+        super().__init__(groups)
+        self.frames = frames
+        self.frame_index = 0
+        self.image = self.frames[self.frame_index]
+        self.rect = self.image.get_frect(center = pos)
+
+    def update(self, dt):
+        self.frame_index += 30 * dt
+        if self.frame_index < len(self.frames):
+            self.image = self.frames[int(self.frame_index) % len(self.frames)]
+        else:
+            self.kill()
+
 def collisions():
     global running
 
     collision_sprites =  pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
-        print(collision_sprites[0])
+        damage_sound.play()
 
     for laser in laser_sprites:
         collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, True)
         if collided_sprites:
             laser.kill()
+            AnimatedExplosion(explosion_frames, laser.rect.midtop, all_sprites)
+            explosion_sound.play()
 def display_score():
     current_time = pygame.time.get_ticks() // 100
     text_surf = font.render(str(current_time), True, (240, 240, 240))
@@ -94,7 +118,15 @@ clock = pygame.time.Clock()
 star_surf = pygame.image.load(join("..", "images", "star.png")).convert_alpha()
 meteor_surf = pygame.image.load(join("..", "images", "meteor.png")).convert_alpha()
 laser_surf = pygame.image.load(join("..", "images", "laser.png")).convert_alpha()
+explosion_frames = [pygame.image.load(join("..", "images", "explosion", f'{i}.png')).convert_alpha() for i in range(21)]
 font = pygame.font.Font(join("..", "images", "Oxanium-Bold.ttf"), 40)
+
+laser_sound = pygame.mixer.Sound(join("..", "audio", "laser.wav"))
+explosion_sound = pygame.mixer.Sound(join("..", "audio", "explosion.wav"))
+damage_sound = pygame.mixer.Sound(join("..", "audio", "damage.ogg"))
+game_music = pygame.mixer.Sound(join("..", "audio", "game_music.wav"))
+game_music.set_volume(0.5)
+game_music.play(loops=-1)
 
 # sprites
 all_sprites = pygame.sprite.Group()
@@ -107,7 +139,7 @@ player = Player(all_sprites)
 
 # custom events => metetor spawn
 meteor_event = pygame.event.custom_type()
-pygame.time.set_timer(meteor_event, 500)
+pygame.time.set_timer(meteor_event, 300)
 
 test_rect = pygame.FRect(0, 0, 300, 600)
 
